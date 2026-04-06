@@ -24,12 +24,12 @@ var handlers = map[string]handler{
 	"say":                 handleSay, // 非语法糖识别 (加了效果一样)
 	"changeBg":            handleChangeBg,
 	"changeFigure":        handleChangeFigure,
-	"bgm":                 contentHandler(catBgm),
-	"playVideo":           contentHandler(catVideo),
+	"bgm":                 contentHandler(catBgm, ""),
+	"playVideo":           contentHandler(catVideo, ""),
 	"pixiPerform":         handleNop,
 	"pixiInit":            handleNop,
 	"intro":               handleIntro,
-	"miniAvatar":          contentHandler(catFigure),
+	"miniAvatar":          contentHandler(catFigure, ""),
 	"changeScene":         handleNop, // 暂时用不着可达性检测 (TODO: 在场景开头注释 `ignore`)
 	"choose":              handleNop,
 	"end":                 handleNop,
@@ -39,12 +39,12 @@ var handlers = map[string]handler{
 	"setVar":              handleNop,
 	"callScene":           handleNop,
 	"showVars":            handleNop,
-	"unlockCg":            contentHandler(catBackground),
-	"unlockBgm":           contentHandler(catBgm),
+	"unlockCg":            contentHandler(catBackground, ""),
+	"unlockBgm":           contentHandler(catBgm, ""),
 	"filmMode":            handleNop,
 	"setTextbox":          handleNop,
-	"setAnimation":        contentHandler(catAnimation),
-	"playEffect":          contentHandler(catVocal),
+	"setAnimation":        contentHandler(catAnimation, ".json"),
+	"playEffect":          contentHandler(catVocal, ""),
 	"setTempAnimation":    handleNop,
 	"setTransform":        handleNop,
 	"setTransition":       handleSetTransition,
@@ -66,28 +66,28 @@ func handle(sentence parse.Sentence, root string, archiver chan<- string) error 
 
 //////// common ////////
 
-func collectContent(content, root, category string, archiver chan<- string) {
+func collectContent(content, root, category, extension string, archiver chan<- string) {
 	if content != "" && content != "none" {
-		archiver <- filepath.Join(root, category, content)
+		archiver <- filepath.Join(root, category, content+extension)
 	}
 }
 
 func collectArguments(
 	arguments map[string]string,
-	root, category string,
+	root, category, extension string,
 	targets map[string]struct{},
 	archiver chan<- string,
 ) {
 	for name, value := range arguments {
 		if _, ok := targets[name]; ok {
-			archiver <- filepath.Join(root, category, value)
+			archiver <- filepath.Join(root, category, value+extension)
 		}
 	}
 }
 
-func contentHandler(category string) handler {
+func contentHandler(category, extension string) handler {
 	return func(sentence parse.Sentence, root string, archiver chan<- string) error {
-		collectContent(sentence.Content, root, category, archiver)
+		collectContent(sentence.Content, root, category, extension, archiver)
 		return nil
 	}
 }
@@ -128,8 +128,8 @@ func handleSay(sentence parse.Sentence, root string, archiver chan<- string) err
 //////// changeBg ////////
 
 func handleChangeBg(sentence parse.Sentence, root string, archiver chan<- string) error {
-	collectContent(sentence.Content, root, catBackground, archiver)
-	collectArguments(sentence.Arguments, root, catAnimation, animationArguments, archiver)
+	collectContent(sentence.Content, root, catBackground, "", archiver)
+	collectArguments(sentence.Arguments, root, catAnimation, ".json", animationArguments, archiver)
 	return nil
 }
 
@@ -145,8 +145,8 @@ var imageFigureArguments = map[string]struct{}{
 }
 
 func handleChangeFigure(sentence parse.Sentence, root string, archiver chan<- string) error {
-	collectArguments(sentence.Arguments, root, catAnimation, animationArguments, archiver)
-	collectArguments(sentence.Arguments, root, catFigure, imageFigureArguments, archiver)
+	collectArguments(sentence.Arguments, root, catAnimation, ".json", animationArguments, archiver)
+	collectArguments(sentence.Arguments, root, catFigure, "", imageFigureArguments, archiver)
 	if figure := sentence.Content; figure != "" && figure != "none" {
 		return collectFigure(filepath.Join(root, catFigure, figure), archiver)
 	}
@@ -179,6 +179,6 @@ var animationArguments = map[string]struct{}{"enter": {}, "exit": {}}
 //////// setTransition ////////
 
 func handleSetTransition(sentence parse.Sentence, root string, archiver chan<- string) error {
-	collectArguments(sentence.Arguments, root, catAnimation, animationArguments, archiver)
+	collectArguments(sentence.Arguments, root, catAnimation, ".json", animationArguments, archiver)
 	return nil
 }
