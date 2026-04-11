@@ -9,7 +9,7 @@ import (
 
 // 资源收集函数.
 // 参数:
-//   - root: WebGAL 项目 game 目录
+//   - root: WebGAL 项目根目录
 //   - archiver: 资源发送管道
 type collector func(root string, archiver chan<- Resource) error
 
@@ -49,10 +49,18 @@ func Collect(root string, archiver chan<- Resource) error {
 
 // 默认打包资源 (目录或文件).
 var commonResources = []string{
-	"template",
-	"tex",
-	"config.txt",
-	"userStyleSheet.css",
+	// 引擎文件
+	"assets/",
+	"icons/",
+	"lib/",
+	"index.html",
+	"manifest.json",
+	"webgal-serviceworker.js",
+
+	// 游戏文件
+	"game/template",
+	"game/tex",
+	"game/userStyleSheet.css",
 }
 
 // 收集默认打包资源.

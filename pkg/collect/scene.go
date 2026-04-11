@@ -12,8 +12,9 @@ import (
 )
 
 // 收集全部场景文件
-// 此操作会解析并归档 `{root}/scene/` 下所有场景.
+// 此操作会解析并归档 `{root}/game/scene/` 下所有场景.
 func CollectScenes(root string, archiver chan<- Resource) error {
+	root = filepath.Join(root, "game")
 	wg := sync.WaitGroup{}
 
 	// 并发错误聚合
@@ -44,7 +45,7 @@ func CollectScenes(root string, archiver chan<- Resource) error {
 	}
 
 	// 扫描场景
-	if err := filepath.WalkDir(filepath.Join(root, "scene"), func(path string, d fs.DirEntry, err error) error {
+	if err := filepath.WalkDir(filepath.Join(root, catScene), func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			errCh <- err
 			return nil

@@ -8,6 +8,7 @@ import (
 
 // 收集配置文件及关联资源.
 func CollectConfig(root string, archiver chan<- Resource) error {
+	root = filepath.Join(root, "game")
 	path := filepath.Join(root, "config.txt")
 	archiver <- Resource{Path: path}
 
