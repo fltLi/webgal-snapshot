@@ -37,7 +37,7 @@ func main() {
 		}
 
 		// 启动打包
-		archiver, wait, err := newArchiver(dst, converter, inspector)
+		archiver, wait, err := collect.NewArchiver(dst, converter, inspector)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "归档压缩包打开失败: %v\n", err)
 			continue
@@ -48,7 +48,6 @@ func main() {
 			fmt.Fprintf(os.Stderr, "解析时出错: %v\n", err)
 		}
 
-		close(archiver)
 		success, failure := wait()
 		fmt.Printf("打包结束, 成功: %d, 失败: %d\n", success, failure)
 	}

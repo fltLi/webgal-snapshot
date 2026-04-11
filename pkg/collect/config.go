@@ -7,9 +7,9 @@ import (
 )
 
 // 收集配置文件及关联资源.
-func CollectConfig(root string, archiver chan<- string) error {
+func CollectConfig(root string, archiver chan<- Resource) error {
 	path := filepath.Join(root, "config.txt")
-	archiver <- path
+	archiver <- Resource{Path: path}
 
 	// 解析配置
 	config, err := parse.ParseConfig(path)
@@ -21,9 +21,9 @@ func CollectConfig(root string, archiver chan<- string) error {
 	for name, value := range config {
 		switch name {
 		case "Title_img":
-			archiver <- filepath.Join(root, catBackground, value)
+			archiver <- Resource{Path: filepath.Join(root, catBackground, value)}
 		case "Title_bgm":
-			archiver <- filepath.Join(root, catBgm, value)
+			archiver <- Resource{Path: filepath.Join(root, catBgm, value)}
 		}
 	}
 

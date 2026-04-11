@@ -12,9 +12,9 @@ import (
 //   - sentence: 语句
 //   - root: 根目录
 //   - archiver: 资源发送管道
-type handler func(sentence parse.Sentence, root string, archiver chan<- string) error
+type handler func(sentence parse.Sentence, root string, archiver chan<- Resource) error
 
-func handleNop(parse.Sentence, string, chan<- string) error {
+func handleNop(parse.Sentence, string, chan<- Resource) error {
 	return nil
 }
 
@@ -55,7 +55,7 @@ var handlers = map[string]handler{
 
 // 收集语句资源
 // 此操作不读取场景.
-func handle(sentence parse.Sentence, root string, archiver chan<- string) error {
+func handle(sentence parse.Sentence, root string, archiver chan<- Resource) error {
 	handler, ok := handlers[sentence.Command]
 	if ok {
 		return handler(sentence, root, archiver)
@@ -66,9 +66,9 @@ func handle(sentence parse.Sentence, root string, archiver chan<- string) error 
 
 //////// common ////////
 
-func collectContent(content, root, category, extension string, archiver chan<- string) {
+func collectContent(content, root, category, extension string, archiver chan<- Resource) {
 	if content != "" && content != "none" {
-		archiver <- filepath.Join(root, category, content+extension)
+		archiver <- Resource{Path: filepath.Join(root, category, content+extension)}
 	}
 }
 
@@ -76,17 +76,17 @@ func collectArguments(
 	arguments map[string]string,
 	root, category, extension string,
 	targets map[string]struct{},
-	archiver chan<- string,
+	archiver chan<- Resource,
 ) {
 	for name, value := range arguments {
 		if _, ok := targets[name]; ok {
-			archiver <- filepath.Join(root, category, value+extension)
+			archiver <- Resource{Path: filepath.Join(root, category, value+extension)}
 		}
 	}
 }
 
 func contentHandler(category, extension string) handler {
-	return func(sentence parse.Sentence, root string, archiver chan<- string) error {
+	return func(sentence parse.Sentence, root string, archiver chan<- Resource) error {
 		collectContent(sentence.Content, root, category, extension, archiver)
 		return nil
 	}
@@ -109,16 +109,16 @@ var sayArguments = map[string]struct{}{
 	"when":     {},
 }
 
-func handleSay(sentence parse.Sentence, root string, archiver chan<- string) error {
+func handleSay(sentence parse.Sentence, root string, archiver chan<- Resource) error {
 	for name, value := range sentence.Arguments {
 		if _, ok := sayArguments[name]; ok {
 			continue
 		}
 
 		if name == catVocal {
-			archiver <- filepath.Join(root, catVocal, value)
+			archiver <- Resource{Path: filepath.Join(root, catVocal, value)}
 		} else if value != "" {
-			archiver <- filepath.Join(root, catVocal, value)
+			archiver <- Resource{Path: filepath.Join(root, catVocal, value)}
 		}
 	}
 
@@ -127,7 +127,7 @@ func handleSay(sentence parse.Sentence, root string, archiver chan<- string) err
 
 //////// changeBg ////////
 
-func handleChangeBg(sentence parse.Sentence, root string, archiver chan<- string) error {
+func handleChangeBg(sentence parse.Sentence, root string, archiver chan<- Resource) error {
 	collectContent(sentence.Content, root, catBackground, "", archiver)
 	collectArguments(sentence.Arguments, root, catAnimation, ".json", animationArguments, archiver)
 	return nil
@@ -144,29 +144,30 @@ var imageFigureArguments = map[string]struct{}{
 	"eyesClose":     {},
 }
 
-func handleChangeFigure(sentence parse.Sentence, root string, archiver chan<- string) error {
+func handleChangeFigure(sentence parse.Sentence, root string, archiver chan<- Resource) error {
 	collectArguments(sentence.Arguments, root, catAnimation, ".json", animationArguments, archiver)
 	collectArguments(sentence.Arguments, root, catFigure, "", imageFigureArguments, archiver)
-	if figure := sentence.Content; figure != "" && figure != "none" {
-		return collectFigure(filepath.Join(root, catFigure, figure), archiver)
+	if path := sentence.Content; path != "" && path != "none" {
+		path := filepath.Join(root, catFigure, path)
+		expand := func() ([]Resource, error) {
+			// 收集模型关联资源.
+			assets, err := figure.Assets(path)
+			var res = make([]Resource, len(assets))
+			for _, asset := range assets {
+				res = append(res, Resource{Path: asset})
+			}
+			return res, err
+		}
+		archiver <- Resource{Path: path, Expand: expand}
 	}
 	return nil
 }
 
-// 收集模型关联资源.
-func collectFigure(path string, archiver chan<- string) error {
-	assets, err := figure.Assets(path)
-	for _, asset := range assets {
-		archiver <- asset
-	}
-	return err
-}
-
 //////// intro ////////
 
-func handleIntro(sentence parse.Sentence, root string, archiver chan<- string) error {
+func handleIntro(sentence parse.Sentence, root string, archiver chan<- Resource) error {
 	if bg, ok := sentence.Arguments["backgroundImage"]; ok {
-		archiver <- filepath.Join(root, catBackground, bg)
+		archiver <- Resource{Path: filepath.Join(root, catBackground, bg)}
 	}
 	return nil
 }
@@ -178,7 +179,7 @@ var animationArguments = map[string]struct{}{"enter": {}, "exit": {}}
 
 //////// setTransition ////////
 
-func handleSetTransition(sentence parse.Sentence, root string, archiver chan<- string) error {
+func handleSetTransition(sentence parse.Sentence, root string, archiver chan<- Resource) error {
 	collectArguments(sentence.Arguments, root, catAnimation, ".json", animationArguments, archiver)
 	return nil
 }

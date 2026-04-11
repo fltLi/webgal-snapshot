@@ -13,7 +13,7 @@ import (
 
 // 收集全部场景文件
 // 此操作会解析并归档 `{root}/scene/` 下所有场景.
-func CollectScenes(root string, archiver chan<- string) error {
+func CollectScenes(root string, archiver chan<- Resource) error {
 	wg := sync.WaitGroup{}
 
 	// 并发错误聚合
@@ -56,7 +56,7 @@ func CollectScenes(root string, archiver chan<- string) error {
 
 		// 处理场景
 		wg.Go(func() {
-			archiver <- path
+			archiver <- Resource{Path: path}
 			collectScene(path)
 		})
 		return nil

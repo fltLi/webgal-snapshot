@@ -11,7 +11,7 @@ import (
 // 参数:
 //   - root: WebGAL 项目 game 目录
 //   - archiver: 资源发送管道
-type collector func(root string, archiver chan<- string) error
+type collector func(root string, archiver chan<- Resource) error
 
 // 资源收集函数注册表.
 var collectors = []collector{
@@ -21,7 +21,7 @@ var collectors = []collector{
 }
 
 // 收集场景和资源文件.
-func Collect(root string, archiver chan<- string) error {
+func Collect(root string, archiver chan<- Resource) error {
 	wg := sync.WaitGroup{}
 
 	// 并发错误聚合
@@ -56,7 +56,7 @@ var commonResources = []string{
 }
 
 // 收集默认打包资源.
-func collectCommons(root string, archiver chan<- string) error {
+func collectCommons(root string, archiver chan<- Resource) error {
 	wg := sync.WaitGroup{}
 
 	// 并发错误聚合
@@ -81,7 +81,7 @@ func collectCommons(root string, archiver chan<- string) error {
 					return nil
 				}
 
-				archiver <- path
+				archiver <- Resource{Path: path}
 				return nil
 			}); err != nil {
 				errCh <- err
