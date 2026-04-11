@@ -117,8 +117,9 @@ func handleSay(sentence parse.Sentence, root string, archiver chan<- Resource) e
 
 		if name == catVocal {
 			archiver <- Resource{Path: filepath.Join(root, catVocal, value)}
-		} else if value != "" {
-			archiver <- Resource{Path: filepath.Join(root, catVocal, value)}
+			break
+		} else if value == "" {
+			archiver <- Resource{Path: filepath.Join(root, catVocal, name)}
 		}
 	}
 
