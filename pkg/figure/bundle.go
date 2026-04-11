@@ -45,8 +45,5 @@ func BundleAssets(path string) ([]string, error) {
 		}
 	}
 
-	if len(errs) > 0 {
-		err = errors.Join(errs...)
-	}
-	return assets, err
+	return assets, errors.Join(errs...)
 }

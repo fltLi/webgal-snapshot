@@ -67,9 +67,5 @@ func CollectScenes(root string, archiver chan<- string) error {
 	// 等待结果
 	close(errCh)
 	wg.Wait()
-	if len(errs) > 0 {
-		return errors.Join(errs...)
-	} else {
-		return nil
-	}
+	return errors.Join(errs...)
 }

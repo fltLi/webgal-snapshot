@@ -6,6 +6,8 @@ import (
 )
 
 // 解析场景文件.
+// 参数:
+//   - scene: 场景路径
 func ParseScene(scene string) ([]Sentence, error) {
 	file, err := os.Open(scene)
 	if err != nil {

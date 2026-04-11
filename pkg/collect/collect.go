@@ -7,11 +7,44 @@ import (
 	"sync"
 )
 
-// 收集场景和资源文件.
+// 资源收集函数.
 // 参数:
 //   - root: WebGAL 项目 game 目录
+//   - archiver: 资源发送管道
+type collector func(root string, archiver chan<- string) error
+
+// 资源收集函数注册表.
+var collectors = []collector{
+	collectCommons,
+	CollectConfig,
+	CollectScenes,
+}
+
+// 收集场景和资源文件.
 func Collect(root string, archiver chan<- string) error {
-	return errors.Join(collectCommons(root, archiver), CollectScenes(root, archiver))
+	wg := sync.WaitGroup{}
+
+	// 并发错误聚合
+	var errs []error
+	errCh := make(chan error)
+	wg.Go(func() {
+		for err := range errCh {
+			errs = append(errs, err)
+		}
+	})
+
+	for _, c := range collectors {
+		wg.Go(func() {
+			if err := c(root, archiver); err != nil {
+				errCh <- err
+			}
+		})
+	}
+
+	// 等待结果
+	close(errCh)
+	wg.Wait()
+	return errors.Join(errs...)
 }
 
 // 默认打包资源 (目录或文件).
@@ -19,7 +52,6 @@ var commonResources = []string{
 	"template",
 	"tex",
 	"config.txt",
-	// "config.json",
 	"userStyleSheet.css",
 }
 
@@ -60,9 +92,5 @@ func collectCommons(root string, archiver chan<- string) error {
 	// 等待结果
 	close(errCh)
 	wg.Wait()
-	if len(errs) > 0 {
-		return errors.Join(errs...)
-	} else {
-		return nil
-	}
+	return errors.Join(errs...)
 }
