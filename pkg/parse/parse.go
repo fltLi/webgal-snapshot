@@ -27,7 +27,7 @@ func ParseSentence(sentence string) Sentence {
 // 分离语句注释.
 func splitComment(sentence string) (string, string) {
 	for i, c := range sentence {
-		if c == ';' && (i > 0 && sentence[i-1] != '\\') {
+		if c == ';' && (i == 0 || sentence[i-1] != '\\') {
 			return sentence[:i], strings.TrimSpace(sentence[i+1:])
 		}
 	}
