@@ -28,7 +28,7 @@ func NewArchiver(
 	path string,
 	converter func(string) string,
 	inspector func(int, string, error),
-) (chan<- Resource, func() (int, int), error) {
+) (chan<- Resource, func(), error) {
 	// 打开压缩包
 	file, err := os.Create(path)
 	if err != nil {
@@ -55,8 +55,6 @@ func NewArchiver(
 
 	end := make(chan struct{}) // 结束输出
 	archiver := make(chan Resource, 256)
-	success := 0
-	failure := 0
 
 	// 启动输出线程
 	go func() {
@@ -96,11 +94,6 @@ func NewArchiver(
 				if ok {
 					i++
 					inspector(i, dst, err)
-					if err == nil {
-						success++
-					} else {
-						failure++
-					}
 				}
 
 				if ok && res.Expand != nil {
@@ -117,9 +110,8 @@ func NewArchiver(
 		end <- struct{}{}
 	}()
 
-	return archiver, func() (int, int) {
+	return archiver, func() {
 		close(archiver)
 		<-end
-		return success, failure
 	}, nil
 }

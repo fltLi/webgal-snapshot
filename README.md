@@ -1,4 +1,4 @@
-# webgal-snapshot
+# WebGAL Snapshot
 
 WebGAL 快照小工具 - 一键打包 WebGAL 项目, 自动裁剪未使用的资源.
 
