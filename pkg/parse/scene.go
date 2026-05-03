@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-// 解析场景文件.
+// ParseScene 解析场景文件.
 // 参数:
 //   - scene: 场景路径
 func ParseScene(scene string) ([]Sentence, error) {

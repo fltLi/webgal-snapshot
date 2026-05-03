@@ -11,7 +11,7 @@ import (
 	"github.com/fltLi/webgal-snapshot/pkg/parse"
 )
 
-// 收集全部场景文件
+// CollectScenes 收集全部场景文件
 // 此操作会解析并归档 `{root}/game/scene/` 下所有场景.
 func CollectScenes(root string, archiver chan<- Resource) error {
 	root = filepath.Join(root, "game")

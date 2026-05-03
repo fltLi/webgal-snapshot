@@ -6,7 +6,8 @@ import (
 	"strings"
 )
 
-type FigureType = int
+// Type 表示模型类型.
+type Type = int
 
 // 模型类型.
 const (
@@ -16,14 +17,14 @@ const (
 	figSpine
 )
 
-// 识别模型类型.
+// GetType 识别模型类型.
 // 参数:
 //   - path: 模型配置文件路径 (可能含有类型标注)
 //
 // 返回:
 //   - FigureType: 模型类型
 //   - string: 模型实际路径
-func Type(path string) (FigureType, string) {
+func GetType(path string) (Type, string) {
 	if realPath, ok := strings.CutSuffix(path, "?type=spine"); ok {
 		return figSpine, realPath
 	}
@@ -39,18 +40,18 @@ func Type(path string) (FigureType, string) {
 	}
 }
 
-// 识别模型类型并列出相关资源.
+// GetAssets 识别模型类型并列出相关资源.
 // 参数:
 //   - path: 模型配置文件路径 (可能含有类型标注)
-func Assets(path string) ([]string, error) {
-	t, path := Type(path)
+func GetAssets(path string) ([]string, error) {
+	t, path := GetType(path)
 	switch t {
 	case figImage:
 		return []string{path}, nil
 	case figLive2d:
-		return Live2dAssets(path)
+		return GetLive2dAssets(path)
 	case figBundle:
-		return BundleAssets(path)
+		return GetBundleAssets(path)
 	case figSpine:
 		return []string{path}, fmt.Errorf("暂不支持 Spine 模型: %s", path)
 	default:

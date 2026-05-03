@@ -8,13 +8,13 @@ import (
 	"path/filepath"
 )
 
-// 收集的资源.
+// Resource 表示收集的资源.
 type Resource struct {
 	Path   string
 	Expand func() ([]Resource, error) // 关联文件解析
 }
 
-// 创建归档器.
+// NewArchiver 创建归档器.
 // 参数:
 //   - path: 输出路径
 //   - converter: 输入路径转换器

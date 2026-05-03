@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 解析配置文件.
+// ParseConfig 解析配置文件.
 // 参数:
 //   - config: 场景路径
 func ParseConfig(config string) (map[string]string, error) {

@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 )
 
-// WebGAL Live2D 模型配置.
+// Live2d 表示 Live2D 模型配置.
 type Live2d struct {
 	Model       string                    `json:"model"`
 	Physics     string                    `json:"physics"`
@@ -15,15 +15,15 @@ type Live2d struct {
 	Expressions []Live2dMotion            `json:"expressions"`
 }
 
-// Live2D 模型动作表情片段.
+// Live2dMotion 表示 Live2D 模型动作表情片段.
 type Live2dMotion struct {
 	File string `json:"file"`
 }
 
-// 解析并列出 Live2D 模型相关资源.
+// GetLive2dAssets 解析并列出 Live2D 模型相关资源.
 // 参数:
 //   - path: 模型配置文件路径
-func Live2dAssets(path string) ([]string, error) {
+func GetLive2dAssets(path string) ([]string, error) {
 	// 读取配置
 	data, err := os.ReadFile(path)
 	if err != nil {

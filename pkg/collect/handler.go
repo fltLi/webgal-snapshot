@@ -7,7 +7,7 @@ import (
 	"github.com/fltLi/webgal-snapshot/pkg/parse"
 )
 
-// 语句处理函数.
+// handler 表示语句处理函数.
 // 参数:
 //   - sentence: 语句
 //   - root: 根目录
@@ -53,7 +53,7 @@ var handlers = map[string]handler{
 	"wait":                handleNop,
 }
 
-// 收集语句资源
+// handle 收集语句资源
 // 此操作不读取场景.
 func handle(sentence parse.Sentence, root string, archiver chan<- Resource) error {
 	handler, ok := handlers[sentence.Command]
@@ -152,7 +152,7 @@ func handleChangeFigure(sentence parse.Sentence, root string, archiver chan<- Re
 		path := filepath.Join(root, catFigure, path)
 		expand := func() ([]Resource, error) {
 			// 收集模型关联资源.
-			assets, err := figure.Assets(path)
+			assets, err := figure.GetAssets(path)
 			var res = make([]Resource, len(assets))
 			for _, asset := range assets {
 				res = append(res, Resource{Path: asset})

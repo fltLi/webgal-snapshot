@@ -2,7 +2,7 @@ package parse
 
 import "strings"
 
-// WebGAL 语句.
+// Sentence 表示语句.
 type Sentence struct {
 	Command   string
 	Content   string
@@ -10,7 +10,7 @@ type Sentence struct {
 	Comment   string
 }
 
-// 解析语句.
+// ParseSentence 解析一条语句.
 func ParseSentence(sentence string) Sentence {
 	sentence, comment := splitComment(sentence)
 	command, sentence := splitCommand(sentence)
@@ -24,7 +24,7 @@ func ParseSentence(sentence string) Sentence {
 	}
 }
 
-// 分离语句注释.
+// splitComment 分离语句注释.
 func splitComment(sentence string) (string, string) {
 	for i, c := range sentence {
 		if c == ';' && (i == 0 || sentence[i-1] != '\\') {
@@ -34,7 +34,7 @@ func splitComment(sentence string) (string, string) {
 	return sentence, ""
 }
 
-// 分离语句类型.
+// splitCommand 分离语句类型.
 func splitCommand(sentence string) (string, string) {
 	command, sentence, ok := strings.Cut(sentence, ":")
 	if !ok {
@@ -44,7 +44,7 @@ func splitCommand(sentence string) (string, string) {
 	}
 }
 
-// 分割并解析语句参数.
+// splitArguments 分割并解析语句参数.
 func splitArguments(sentence string) (string, map[string]string) {
 	content := ""
 	arguments := make(map[string]string)
@@ -70,7 +70,7 @@ func splitArguments(sentence string) (string, map[string]string) {
 	return content, arguments
 }
 
-// 解析语句参数.
+// parseArgument 解析语句参数.
 func parseArgument(argument string) (string, string) {
 	name, value, _ := strings.Cut(argument, "=")
 	return strings.TrimSpace(name), strings.TrimSpace(value)

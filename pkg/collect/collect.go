@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-// 资源收集函数.
+// collector 表示资源收集函数.
 // 参数:
 //   - root: WebGAL 项目根目录
 //   - archiver: 资源发送管道
@@ -20,7 +20,7 @@ var collectors = []collector{
 	CollectScenes,
 }
 
-// 收集场景和资源文件.
+// Collect 收集场景和资源文件.
 func Collect(root string, archiver chan<- Resource) error {
 	wg := sync.WaitGroup{}
 
@@ -63,7 +63,7 @@ var commonResources = []string{
 	"game/userStyleSheet.css",
 }
 
-// 收集默认打包资源.
+// collectCommons 收集默认打包资源.
 func collectCommons(root string, archiver chan<- Resource) error {
 	wg := sync.WaitGroup{}
 

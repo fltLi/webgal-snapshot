@@ -1,0 +1,46 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build
+    runs-on: ${{ matrix.os }}
+    env:
+      GITHUB_BUILD_SHA: ${{ github.event.pull_request && github.event.pull_request.head.sha || github.sha }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Build
+        run: go build -o webgal-snapshot${{ matrix.os == 'windows-latest' && '.exe' || '' }} ./cmd/webgal-snapshot
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: webgal-snapshot-${{ matrix.os }}
+          path: webgal-snapshot${{ matrix.os == 'windows-latest' && '.exe' || '' }}

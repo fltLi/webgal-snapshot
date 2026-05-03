@@ -22,8 +22,26 @@ WebGAL 快照小工具 - 一键打包 WebGAL 项目, 自动裁剪未使用的资
 
 ### 自行构建
 
-运行 [`release.sh`](release.sh) 脚本即可完成全平台构建.
+```bash
+go build cmd/webgal-snapshot
+```
+
+## :package: 资源打包
+
+### 自动打包
+
+- 引擎资源[^1].
+
+- 场景中引用的普通本地资源.
+
+- 场景中引用的 Live2D, WMDL 模型及关联资源.
+
+### 尚不支持
+
+- 场景中引用的 Spine, JSONL 模型及关联资源.
 
 ## :page_facing_up: 许可证
 
 Code: GPL-3.0, 2026, fltLi
+
+[^1]: `assets/`, `icons/`, `lib/`, `index.html`, `manifest.json`, `webgal-serviceworker.js`.

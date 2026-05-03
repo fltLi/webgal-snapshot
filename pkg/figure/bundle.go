@@ -7,20 +7,20 @@ import (
 	"path/filepath"
 )
 
-// Live2D 捆版模型.
+// Bundle 表示 Live2D 捆版模型.
 type Bundle struct {
 	SubModels []BundleSubModel `json:"subModels"`
 }
 
-// Live2D 捆绑子模型.
+// BundleSubModel 表示 Live2D 捆绑子模型.
 type BundleSubModel struct {
 	Model string `json:"modelRelativaPath"`
 }
 
-// 解析并列出 Live2D 捆绑模型相关资源.
+// GetBundleAssets 解析并列出 Live2D 捆绑模型相关资源.
 // 参数:
 //   - path: 模型配置文件路径
-func BundleAssets(path string) ([]string, error) {
+func GetBundleAssets(path string) ([]string, error) {
 	// 读取配置
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -37,7 +37,7 @@ func BundleAssets(path string) ([]string, error) {
 	assets := []string{path}
 	for _, sub := range model.SubModels {
 		subModel := filepath.Join(dir, sub.Model)
-		subAssets, err := Live2dAssets(subModel)
+		subAssets, err := GetLive2dAssets(subModel)
 		if err != nil {
 			errs = append(errs, err)
 		} else {
